@@ -1,0 +1,124 @@
+import random
+from tkinter import *
+import time
+
+
+class GameWindow:
+    def __init__(self, root):
+        self.root = root
+
+        self.root.title('Number Guesser')
+        self.guesses = IntVar()
+        self.winning_number = random.randint(0, 100)
+        self.guesses.set(0)
+
+        title_fm = Frame(self.root)
+        self.title_label = Label(title_fm, text='Guess a number: ', font=('david', 24))
+        self.title_label.pack(side='top')
+        title_fm.pack()
+
+        # ----------
+        # Entry area
+        # ----------
+        entry_fm = Frame(self.root)
+        self.entry_label = Label(entry_fm, text='Guess a number: ', font=('david', 12))
+        self.entry_label.pack(side='left')
+        self.entry_box = Entry(entry_fm, font=('david', 12))
+        self.entry_box.pack(side='left')
+        entry_fm.pack()
+        # ----------
+        # End entry area
+        # ----------
+
+        # --------------------
+        # result frame. should be visible only after one guess optimally.
+        # --------------------
+        result_fm = Frame(self.root)
+        self.result_var = StringVar()
+        self.result_var.set('Please enter a guess')
+        self.result_label = Label(result_fm, textvariable=self.result_var, font=('david', 12),
+                                  fg='Black')
+        self.result_label.pack()
+        result_fm.pack()
+        # --------------------
+        # end of result frame.
+        # --------------------
+
+        guesses_fm = Frame(self.root)
+        self.guesses_label = Label(guesses_fm, text='Guesses taken: ', font=('david', 12)).pack(side='left')
+        self.guesses_var_label = Label(guesses_fm, textvariable=str(self.guesses), font=('david', 12)).pack(side='left')
+        guesses_fm.pack()
+
+        buttons_fm = Frame(self.root)
+        self.guess_btn = Button(buttons_fm, text='Guess', command=self.check_entry, font=('david', 12))
+        self.guess_btn.pack(side='top', fill=X)
+        self.new_game_btn = Button(buttons_fm, text='New Game / Reset', command=self.check_new_game, font=('david', 12)).pack(
+            side='left')
+        self.exit_btn = Button(buttons_fm, text='Exit', font=('david', 12), command=self.root.quit).pack(side='left')
+
+        buttons_fm.pack()
+
+    def check_new_game(self):
+        self.newgame_fm = Frame(self.root)
+        self.sure_lbl = Label(self.newgame_fm, text='are you sure?', font=('david', 12)).pack()
+        self.yes_btn = Button(self.newgame_fm, text='Yes', command=self.new_game, font=('david', 12))
+        self.yes_btn.pack(side='left', fill=X)
+        self.no_btn = Button(self.newgame_fm, text='No', command = self.newgame_fm.destroy, font=('david', 12)).pack(side='left')
+        self.newgame_fm.pack()
+
+    def new_game(self):
+        self.newgame_fm.destroy()
+        self.winning_number = random.randint(0, 100)
+        self.guesses.set(0)
+        self.result_var.set('Please enter a guess')
+        self.result_label.config(fg='black')
+        self.guess_btn.config(state='normal')
+
+    def check_entry(self):
+        if 'disabled' in self.guess_btn.config()['state']:
+            self.entry_box.delete('0', END)
+            return
+        if self.entry_box.get() == '':
+            return
+        if not self.entry_box.get().isdecimal():
+            self.result_label.config(fg='black')
+            self.result_var.set(f'{self.entry_box.get()} is not a valid number')
+            return
+        elif int(self.entry_box.get()) > self.winning_number:
+            print('high')
+            self.result_var.set(f'{self.entry_box.get()} is too high')
+            self.result_label.config(fg='red')
+
+        elif int(self.entry_box.get()) < self.winning_number:
+            print('low')
+            self.result_var.set(f'{self.entry_box.get()} is too low')
+            self.result_label.config(fg='blue')
+
+        elif int(self.entry_box.get()) == self.winning_number:
+            self.result_var.set(f'{self.entry_box.get()} is correct!')
+            self.result_label.config(fg='green')
+            self.guess_btn.config(state=DISABLED)
+        self.guesses.set(self.guesses.get() + 1)
+        self.entry_box.delete('0', END)
+
+
+root = Tk()
+game_window = GameWindow(root)
+
+game_window.entry_box.focus()
+game_window.entry_box.bind('<Return>', (lambda event: game_window.check_entry()))
+
+game_window.guesses.set(0)
+root.mainloop()
+
+'''
+while True:
+    current_guess = int(input("enter a number: "))
+    game_window.guesses.set(game_window.guesses.get()+1)
+    result = hi_lo(current_guess,win_number)
+    if result == False:
+        break
+    print (f'Your guess was too {result}. Try again!')
+
+print(f'You won! it took you {guesses} guesses')
+'''
